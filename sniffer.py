@@ -36,14 +36,12 @@ def arp_deploy(pkt):
   dict_scan[pkt[ARP].hwsrc] = pkt[ARP].psrc
   loading()
   return
- 
- 
-
 
 if __name__ == '__main__':
-  #sniffing ARP traffic from SCAPPY
+  print ("Scanning during " + str(sec) + " seconds"
+  # sniffing ARP traffic from SCAPPY
   sniff(filter="arp", prn=arp_deploy, timeout = sec, store=0)
-  #sniffing IP traffic from SCAPPY
+  # sniffing IP traffic from SCAPPY
   sniff(filter="ip", prn=ip_deploy, timeout = sec)
   
   print(dict_scan)
