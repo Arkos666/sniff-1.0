@@ -28,7 +28,7 @@ class Ui_Dialog(object):
         self.OK_button.setEnabled(True)
         self.OK_button.setGeometry(QtCore.QRect(230, 340, 93, 28))
         self.OK_button.setObjectName("OK_button")
-        self.listResult = QtWidgets.QListView(Dialog)
+        self.listResult = QtWidgets.QListWidget(Dialog)
         self.listResult.setGeometry(QtCore.QRect(20, 100, 541, 192))
         self.listResult.setObjectName("listResult")
 
