@@ -2,6 +2,9 @@
 from scapy.all import sniff, getmacbyip, ARP
 import json
 import socket
+import sys
+from PyQt5.QtWidgets import QDialog, QApplication
+from main_window import Ui_Dialog
 
 
 ## Primero vamos a escanear la red durante 60 segundos
@@ -16,7 +19,7 @@ import socket
 ## 4.- We're going to read MAC vendors from csv file to a dictionary
 ## 5.- We will create a csv with MAC;IP;VENDOR; hostname (if it has hostname)
 
-sec = 20 # Seconds to scan the network
+sec = 10 # Seconds to scan the network
 JsonFile = "MacVendors.json"
 
 prev_MACs = 0
@@ -29,6 +32,7 @@ def loading():
     print("Total MACs: " + str(prev_MACs))
   return
 
+
 # IP packet scan
 def ip_deploy(packet):    
   if not (getmacbyip(packet[0][1].src) is None):
@@ -39,11 +43,13 @@ def ip_deploy(packet):
     loading()
   return 
 
+
 # ARP packet scan
 def arp_deploy(pkt):
   dict_scan[(pkt[ARP].hwsrc).replace(":", "").upper()] = pkt[ARP].psrc
   loading()
   return
+  
   
 def search_mac(dict_vendor, dict_result):
   # we're going to search for mac's results in vendors
@@ -65,8 +71,6 @@ def search_mac(dict_vendor, dict_result):
               dict_summary ["NAME"] = hostname
           if not "NAME" in dict_summary:
             dict_summary ["NAME"] = ip
-
-        
         except :
           dict_summary ["NAME"] = ip
 
@@ -78,39 +82,64 @@ def read_json():
   f = open(JsonFile)
   data  = json.load(f)
   f.close()
-  
   dict_vendor= {}
   
   for vendor in data["vendor"]:
-    #print (data["vendor"][vendor])
     for mac in data["vendor"][vendor]:
-      #print(mac)
       dict_vendor[mac.upper()] = vendor
-  
-  #print(dict_vendor)
-  
   return dict_vendor
 
+  
+def create_windows():
+  master = Tk()
+  w = Canvas(master, width=40, height=60)
+  w.pack()
+  canvas_height=20
+  canvas_width=200
+  y = int(canvas_height / 2)
+  w.create_line(0, y, canvas_width, y )
+  mainloop() 
+    
+    
+def scan_network():
+      print ("Scanning during " + str(sec) + " seconds")
+      # sniffing ARP traffic from SCAPPY
+      sniff(filter="arp", prn=arp_deploy, timeout = (sec/2), store=0)
+      # sniffing IP traffic from SCAPPY
+      sniff(filter="ip", prn=ip_deploy, timeout = (sec/2))
+      
+      ## now we have all the MACs and IP's in a dictionary, we're going to relation between vendors
+      # We're going to read JSON file which has the MAC Vendor that we want know
+      dict_vendor = read_json()
+      dict_result = {}
+      dict_result = search_mac(dict_vendor, dict_result)
+
+      return dict_result
+
+class AppWindow(QDialog):
+  def __init__(self):
+    super().__init__()
+    self.ui = Ui_Dialog()
+    self.ui.setupUi(self)
+    
+    def on_button_clicked():      
+
+      dict_result = scan_network()
+      for mac in dict_result:
+        s = dict_result[mac]["IP"] + ":" + dict_result[mac]["VENDOR"]
+        self.ui.listResult.addItem(s)
+      
+    self.ui.OK_button.clicked.connect(on_button_clicked)
+    self.show() 
+
 if __name__ == '__main__':
-  
-  print ("Scanning during " + str(sec) + " seconds")
-  
-  
-  # sniffing ARP traffic from SCAPPY
-  sniff(filter="arp", prn=arp_deploy, timeout = (sec/2), store=0)
-  
-  # sniffing IP traffic from SCAPPY
-  sniff(filter="ip", prn=ip_deploy, timeout = (sec/2))
-  
-  ## now we have all the MACs and IP's in a dictionary, we're going to relation between vendors
-  # print(dict_scan)
+  app = QApplication(sys.argv)
+  w = AppWindow()
+  w.show()
+  sys.exit(app.exec_())
   
   
-  # We're going to read JSON file which has the MAC Vendor that we want know
-  dict_vendor = read_json()
-  dict_result = {}
-  dict_result = search_mac(dict_vendor, dict_result)
-  print(dict_result)
+  
 
   
   
