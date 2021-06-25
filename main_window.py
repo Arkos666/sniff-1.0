@@ -31,6 +31,10 @@ class Ui_Dialog(object):
         self.listResult = QtWidgets.QListWidget(Dialog)
         self.listResult.setGeometry(QtCore.QRect(20, 100, 541, 192))
         self.listResult.setObjectName("listResult")
+        self.progressBar = QtWidgets.QProgressBar(Dialog)
+        self.progressBar.setObjectName("progressBar")
+        self.progressBar.setGeometry(QtCore.QRect(30, 370, 531, 23))
+        self.progressBar.setValue(0)
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>591</width>
-    <height>422</height>
+    <width>645</width>
+    <height>522</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,9 +17,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>10</y>
+     <y>20</y>
      <width>541</width>
-     <height>71</height>
+     <height>111</height>
     </rect>
    </property>
    <property name="title">
@@ -28,7 +28,7 @@
    <widget class="QRadioButton" name="radioButton">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>20</x>
       <y>30</y>
       <width>95</width>
       <height>20</height>
@@ -41,8 +41,8 @@
    <widget class="QRadioButton" name="radioButton_2">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>30</y>
+      <x>20</x>
+      <y>60</y>
       <width>95</width>
       <height>20</height>
      </rect>
@@ -59,7 +59,7 @@
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>340</y>
+     <y>410</y>
      <width>93</width>
      <height>28</height>
     </rect>
@@ -72,10 +72,23 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>100</y>
+     <y>200</y>
      <width>541</width>
      <height>192</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="progressBar">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>470</y>
+     <width>531</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>24</number>
    </property>
   </widget>
  </widget>
