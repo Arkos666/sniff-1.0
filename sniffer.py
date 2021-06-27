@@ -1,94 +1,21 @@
 #! /usr/bin/env python3
-from scapy.all import sniff, getmacbyip, ARP
-import json
-import socket
+#from scapy.all import sniff
+#import socket
 import sys
-from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtWidgets import QDialog, QApplication, QProgressBar, QRadioButton
+from PyQt5.QtWidgets import QMessageBox
+
 from main_window import Ui_Dialog
+from time import time
+from scapy_mod import scan_network
+import constants
 
 
-## Primero vamos a escanear la red durante 60 segundos
-## Intentaremos abrir 3 thread para trabajar en paralelo
+#sec = 10 # Seconds to scan the network
 
-## SCANNING NETWORK ##
-## 1.- Scan TCP/IP protocol the seconds we select in the variable seconds
-## 2.- Scan from ARP packets the seconds we select in the variable seconds
-## 3.- Include all MAC's scanned to a dictionary "MAC":"IP"
-
-## MAC/VENDOR MATCHING ##
-## 4.- We're going to read MAC vendors from csv file to a dictionary
-## 5.- We will create a csv with MAC;IP;VENDOR; hostname (if it has hostname)
-
-sec = 10 # Seconds to scan the network
-JsonFile = "MacVendors.json"
-
-prev_MACs = 0
-dict_scan = {}# This dict will give the IP from given MAC
-
-def loading():
-  global prev_MACs
-  if prev_MACs < len(dict_scan):
-    prev_MACs = len(dict_scan)
-    print("Total MACs: " + str(prev_MACs))
-  return
-
-
-# IP packet scan
-def ip_deploy(packet):    
-  if not (getmacbyip(packet[0][1].src) is None):
-    dict_scan[getmacbyip(packet[0][1].src).replace(":", "").upper()] = packet[0][1].src
-    loading()
-  if not (getmacbyip(packet[0][1].dst) is None):
-    dict_scan[getmacbyip(packet[0][1].dst).replace(":", "").upper()] = packet[0][1].dst
-    loading()
-  return 
-
-
-# ARP packet scan
-def arp_deploy(pkt):
-  dict_scan[(pkt[ARP].hwsrc).replace(":", "").upper()] = pkt[ARP].psrc
-  loading()
-  return
-  
-  
-def search_mac(dict_vendor, dict_result):
-  # we're going to search for mac's results in vendors
-  for mac_vendor in dict_vendor:
-    for mac_scanned in dict_scan:
-     # the start may be the same between mac_vendor and mac scanned
-      if mac_scanned.startswith(mac_vendor):
-        dict_summary = {}
-        dict_summary ["VENDOR"] = dict_vendor[mac_vendor]
-        ip = dict_scan[mac_scanned]
-        dict_summary ["IP"] = ip
-        
-        # if we don't find a name, we will return the IP
-        try:
-          # gethostbyaddr return 3 names we check if one of them is a str
-          host = socket.gethostbyaddr(ip)
-          for hostname in host:
-            if isinstance(hostname, str):
-              dict_summary ["NAME"] = hostname
-          if not "NAME" in dict_summary:
-            dict_summary ["NAME"] = ip
-        except :
-          dict_summary ["NAME"] = ip
-
-        dict_result [mac_scanned] = dict_summary
-  return dict_result
-    
-  
-def read_json():
-  f = open(JsonFile)
-  data  = json.load(f)
-  f.close()
-  dict_vendor= {}
-  
-  for vendor in data["vendor"]:
-    for mac in data["vendor"][vendor]:
-      dict_vendor[mac.upper()] = vendor
-  return dict_vendor
-
+# dict_scan = {}# This dict will give the IP from given MAC
+IP = constants.ip()
+Vendor = constants.vendor()
   
 def create_windows():
   master = Tk()
@@ -99,38 +26,58 @@ def create_windows():
   y = int(canvas_height / 2)
   w.create_line(0, y, canvas_width, y )
   mainloop() 
-    
-    
-def scan_network():
-      print ("Scanning during " + str(sec) + " seconds")
-      # sniffing ARP traffic from SCAPPY
-      sniff(filter="arp", prn=arp_deploy, timeout = (sec/2), store=0)
-      # sniffing IP traffic from SCAPPY
-      sniff(filter="ip", prn=ip_deploy, timeout = (sec/2))
-      
-      ## now we have all the MACs and IP's in a dictionary, we're going to relation between vendors
-      # We're going to read JSON file which has the MAC Vendor that we want know
-      dict_vendor = read_json()
-      dict_result = {}
-      dict_result = search_mac(dict_vendor, dict_result)
-
-      return dict_result
 
 class AppWindow(QDialog):
+  
   def __init__(self):
     super().__init__()
     self.ui = Ui_Dialog()
     self.ui.setupUi(self)
     
-    def on_button_clicked():      
-
-      dict_result = scan_network()
-      for mac in dict_result:
-        s = dict_result[mac]["IP"] + ":" + dict_result[mac]["VENDOR"]
-        self.ui.listResult.addItem(s)
+    def check_Option():
+      for item in self.ui.groupList:
+        if item.isChecked():
+          group_sel = item
+          return  item
+    
+    def on_button_clicked():  
       
-    self.ui.OK_button.clicked.connect(on_button_clicked)
-    self.show() 
+      if (check_Option() == self.ui.chk_Sniff):
+        seconds = self.ui.txt_time.value()
+        
+        if seconds == 0:
+          buttonReply = QMessageBox.information(self, "0 seconds message", "Time cannot be 0 seconds.", QMessageBox.Close)
+        else:
+          dict_result = scan_network(self.ui.progressBar, seconds)
+          
+          for mac in dict_result:
+            line = dict_result[mac][IP] + ":" + dict_result[mac][Vendor]
+            self.ui.lst_Result.addItem(line)
+      elif (check_Option() == self.ui.chk_Sniff):
+        buttonReply = QMessageBox.information(self, "Ping", "Ping", QMessageBox.Close)
+        
+    self.ui.btn_OK.clicked.connect(on_button_clicked)
+    
+    def sel_group():
+      group_sel = QRadioButton()
+      ## we're going to check wich button is selected
+      for item in self.ui.groupList:
+        l = self.ui.dict_check[item].setEnabled(item.isChecked())
+        if item.isChecked():
+          group_sel = item
+    
+    sel_group()
+    
+    self.ui.chk_Sniff.clicked.connect(sel_group)
+    self.ui.chk_Ping.clicked.connect(sel_group)
+    
+    
+     
+    
+    self.show()
+    
+    
+
 
 if __name__ == '__main__':
   app = QApplication(sys.argv)
