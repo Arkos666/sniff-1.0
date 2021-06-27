@@ -10,6 +10,7 @@ import json
 import sys
 
 from multiprocessing import Process
+import constants
 
 
 ## SCANNING NETWORK ##
@@ -21,7 +22,7 @@ from multiprocessing import Process
 ## 4.- We're going to read MAC vendors from csv file to a dictionary
 ## 5.- We will create a csv with MAC;IP;VENDOR; hostname (if it has hostname)
 
-sec = 20
+# sec = 0
 JsonFile = "MacVendors.json"
 
 prev_MACs = 0
@@ -33,9 +34,9 @@ def search_mac(dict_vendor, dict_result, dict_scan):
      # the start may be the same between mac_vendor and mac scanned
       if mac_scanned.startswith(mac_vendor):
         dict_summary = {}
-        dict_summary ["VENDOR"] = dict_vendor[mac_vendor]
+        dict_summary [constants.vendor()] = dict_vendor[mac_vendor]
         ip = dict_scan[mac_scanned]
-        dict_summary ["IP"] = ip
+        dict_summary [constants.ip()] = ip
         
         # if we don't find a name, we will return the IP
         try:
@@ -43,36 +44,36 @@ def search_mac(dict_vendor, dict_result, dict_scan):
           host = socket.gethostbyaddr(ip)
           for hostname in host:
             if isinstance(hostname, str):
-              dict_summary ["NAME"] = hostname
-          if not "NAME" in dict_summary:
-            dict_summary ["NAME"] = ip
+              dict_summary [constants.name()] = hostname
+          if not constants.name() in dict_summary:
+            dict_summary [constants.name()] = ip
         except :
-          dict_summary ["NAME"] = ip
+          dict_summary [constants.name()] = ip
 
         dict_result [mac_scanned] = dict_summary
   return dict_result
   
 # packet scan
-def packet_deploy(ProgressBar: QProgressBar, start_time: float, dict_scan: dict):
+def packet_deploy(ProgressBar: QProgressBar, start_time: float, dict_scan: dict, sec: int):
   def upload_packet(packet):
-    if packet.haslayer("ARP"):
+    if packet.haslayer(constants.arp()):
     # upload packet, using passed arguments
       dict_scan[(packet[ARP].hwsrc).replace(":", "").upper()] = packet[ARP].psrc
-      LoadingBar(ProgressBar, start_time)
+      LoadingBar(ProgressBar, start_time, sec)
       # print(dict_scan)
-    elif  packet.haslayer("IP"):
+    elif  packet.haslayer(constants.ip()):
       if not (getmacbyip(packet[0][1].src) is None):
         dict_scan[getmacbyip(packet[0][1].src).replace(":", "").upper()] = packet[0][1].src
         #loading()
-        LoadingBar(ProgressBar, start_time)
+        LoadingBar(ProgressBar, start_time, sec)
       if not (getmacbyip(packet[0][1].dst) is None):
         dict_scan[getmacbyip(packet[0][1].dst).replace(":", "").upper()] = packet[0][1].dst
         #loading()
-      LoadingBar(ProgressBar, start_time)
+      LoadingBar(ProgressBar, start_time, sec)
       # print(dict_scan)
   return upload_packet
   
-def LoadingBar(ProgressBar, start_time):
+def LoadingBar(ProgressBar, start_time, sec):
   ellapsed =  int(((time() - start_time)*100) / sec)
   ProgressBar.setValue(ellapsed)
   
@@ -89,18 +90,18 @@ def read_json():
   f.close()
   dict_vendor= {}
   
-  for vendor in data["vendor"]:
-    for mac in data["vendor"][vendor]:
+  for vendor in data[constants.vendor().lower()]:
+    for mac in data[constants.vendor().lower()][vendor]:
       dict_vendor[mac.upper()] = vendor
   return dict_vendor
   
-def scan_network(ProgressBar):
+def scan_network(ProgressBar, sec):
 
   dict_scan = {}
   start_time = time()
     
   # sniffing traffic from SCAPPY
-  sniff(prn=packet_deploy(ProgressBar, start_time, dict_scan), timeout = (sec/2), store=0)
+  sniff(prn=packet_deploy(ProgressBar, start_time, dict_scan, sec), timeout = (sec), store=0)
  
   ## now we have all the MACs and IP's in a dictionary, we're going to relation between vendors
   # We're going to read JSON file which has the MAC Vendor that we want know
