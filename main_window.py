@@ -74,7 +74,8 @@ class Ui_Dialog(object):
         self.btn_OK.setObjectName(u"btn_OK")
         self.btn_OK.setEnabled(True)
         self.btn_OK.setGeometry(QRect(110, 410, 93, 28))
-        self.lst_Result = QListWidget(Dialog)
+        # self.lst_Result = QListWidget(Dialog)
+        self.lst_Result = QTableWidget(Dialog)
         self.lst_Result.setObjectName(u"lst_Result")
         self.lst_Result.setGeometry(QRect(20, 150, 441, 231))
         self.progressBar = QProgressBar(Dialog)
@@ -97,7 +98,7 @@ class Ui_Dialog(object):
     # setupUi
 
     def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
+        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Security Devices Scanner", None))
         self.grp_Type.setTitle(QCoreApplication.translate("Dialog", u"Type", None))
         self.lbl_Sep.setText(QCoreApplication.translate("Dialog", u" - ", None))
         self.lbl_Time.setText(QCoreApplication.translate("Dialog", u"Time", None))
@@ -107,14 +108,11 @@ class Ui_Dialog(object):
         self.btn_OK.setText(QCoreApplication.translate("Dialog", u"OK", None))
         self.btn_Cancel.setText(QCoreApplication.translate("Dialog", u"CANCEL", None))
     # retranslateUi
-
-
-
     
     def setValues(self):
       self.progressBar.setValue(0)
       self.chk_Sniff.setChecked(True)
-      self.txt_time.setValue(20)
+      self.txt_time.setValue(10)
       self.groupList.append(self.chk_Sniff)
       self.groupList.append(self.chk_Ping)
       
