@@ -7,6 +7,7 @@ GroupBox = "groupBox"
 IP = "IP"
 Ip_Range = "IP Range"
 ListResult = "listResult"
+Mac = "MAC"
 Name = "NAME"
 OK = "OK"
 OKbutton = "OK_button"
@@ -15,47 +16,66 @@ RadioPing = "radioPing"
 RadioSniff = "radioSniff"
 Vendor = "VENDOR"
 
+
 def arp():
-  return ARP
+    return ARP
+
 
 def c_type():
-  return c_Type
+    return c_Type
+
 
 def dialog():
-  return Dialog
+    return Dialog
+
 
 def free_scan():
-  return Free_Scan
-  
-def groupBox():
-  return GroupBox
-  
+    return Free_Scan
+
+
+def groupbox():
+    return GroupBox
+
+
 def ip():
-  return IP
-  
+    return IP
+
+
 def ip_range():
-  return Ip_Range
-  
-def listResult():
-  return ListResult
-  
+    return Ip_Range
+
+
+def list_result():
+    return ListResult
+
+
+def mac():
+    return Mac
+
+
 def name():
-  return Name
-  
+    return Name
+
+
 def ok():
-  return OK
+    return OK
+
 
 def OK_button():
-  return OKbutton
-  
+    return OKbutton
+
+
 def progressBar():
-  return ProgressBar
-  
+    return ProgressBar
+
+
 def radioPing():
-  return RadioPing
- 
+    return RadioPing
+
+
 def radioSniff():
-  return RadioSniff
-  
+    return RadioSniff
+
+
 def vendor():
-  return Vendor 
+    return Vendor

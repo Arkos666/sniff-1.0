@@ -18,13 +18,17 @@ import constants
 class Ui_Dialog(object):
     # in this group we add checkboxes to check if it's seleceted or not
     groupList = []
-    # This dictionary will have checkboxes as key and frame as definition to put enable = true or false if it's checked or not
+    ''' This dictionary will have checkboxes as key and 
+    frame as definition to put enable = true or false if it's checked or not'''
     dict_check  = {}
   
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
         Dialog.resize(500, 522)
+
+
+
         self.grp_Type = QGroupBox(Dialog)
         self.grp_Type.setObjectName(u"grp_Type")
         self.grp_Type.setGeometry(QRect(22, 12, 441, 111))
@@ -73,7 +77,7 @@ class Ui_Dialog(object):
         self.btn_OK = QPushButton(Dialog)
         self.btn_OK.setObjectName(u"btn_OK")
         self.btn_OK.setEnabled(True)
-        self.btn_OK.setGeometry(QRect(110, 410, 93, 28))
+        self.btn_OK.setGeometry(QRect(80, 410, 93, 28))
         # self.lst_Result = QListWidget(Dialog)
         self.lst_Result = QTableWidget(Dialog)
         self.lst_Result.setObjectName(u"lst_Result")
@@ -85,7 +89,11 @@ class Ui_Dialog(object):
         self.btn_Cancel = QPushButton(Dialog)
         self.btn_Cancel.setObjectName(u"btn_Cancel")
         self.btn_Cancel.setEnabled(True)
-        self.btn_Cancel.setGeometry(QRect(300, 410, 93, 28))
+        self.btn_Cancel.setGeometry(QRect(320, 410, 93, 28))
+        self.btn_Export = QPushButton(Dialog)
+        self.btn_Export.setObjectName(u"btn_Export")
+        self.btn_Export.setEnabled(False)
+        self.btn_Export.setGeometry(QRect(200, 410, 93, 28))
 
         self.retranslateUi(Dialog)
         
@@ -107,6 +115,7 @@ class Ui_Dialog(object):
         self.chk_Ping.setText(QCoreApplication.translate("Dialog", u"IP Range", None))
         self.btn_OK.setText(QCoreApplication.translate("Dialog", u"OK", None))
         self.btn_Cancel.setText(QCoreApplication.translate("Dialog", u"CANCEL", None))
+        self.btn_Export.setText(QCoreApplication.translate("Dialog", u"EXPORT", None))
     # retranslateUi
     
     def setValues(self):

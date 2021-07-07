@@ -191,7 +191,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>80</x>
      <y>410</y>
      <width>93</width>
      <height>28</height>
@@ -230,7 +230,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>320</x>
      <y>410</y>
      <width>93</width>
      <height>28</height>
@@ -238,6 +238,22 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>CANCEL</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_Export">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>410</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>EXPORT</string>
    </property>
   </widget>
  </widget>
