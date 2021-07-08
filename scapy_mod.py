@@ -15,24 +15,45 @@ from scapy.layers.l2 import getmacbyip, Ether
 from scapy.sendrecv import sendp
 
 # libraries used for ping part
-from ping3 import ping, verbose_ping
+from ping3 import ping
 import socket
-import regex as re
 
 '''
 ## SCANNING NETWORK ##
  1.- Scan TCP/IP protocol the seconds we select in the variable seconds
- 3.- Include all MAC's scanned to a dictionary of dictionaries (MAC:{IP,VENDOR,NAME}) 
+ 2.- Include all MAC's scanned to a dictionary of dictionaries (MAC:{IP,VENDOR,NAME}) 
 
 ## MAC/VENDOR MATCHING ##
- 4.- We're going to read MAC vendors from csv file to a dictionary
- 5.- We will create a csv with MAC;IP;VENDOR; hostname (if it has hostname)
+ 3.- We're going to read MAC vendors from csv file to a dictionary
+ 4.- We will create a csv with MAC;IP;VENDOR; hostname (if it has hostname)
 '''
 JsonFile = "MacVendors.json"
-
-prev_MACs = 0
-
 filter_stopped = False
+
+
+def ping_scan(sinout, ip_init, ip_dest):
+
+    ip_init = ip_init.split(".", 3)
+    ip_dest = ip_dest.split(".", 3)
+    print(ip_init[3])
+    print(ip_dest[3])
+    dict_scan = {}
+    space_for_bar = (int(ip_dest[3]) - int(ip_init[3]))
+
+    for i in range(int(ip_init[3]), int(ip_dest[3])):
+        ip = ip_init[0] + "." + ip_init[1] + "." + ip_init[2] + "." + str(i)
+        ping_ok = ping(ip, timeout=2, ttl=5)
+        print(f"{ip} : {ping_ok}")
+        if isinstance(ping_ok, float):
+            dict_scan[getmacbyip(ip).replace(":", "").upper()] = ip
+        loading_bar(sinout, 0, i * space_for_bar)
+        if filter_stopped:
+            break
+
+    dict_vendor = read_json()
+    dict_result = {}
+    dict_result = search_mac(dict_vendor, dict_scan, dict_result)
+    return dict_result
 
 
 # we write in dict_result, the dict_scan result, adding vendor (from dict_vendor)
@@ -91,7 +112,10 @@ def packet_deploy(sinout: pyqtSignal, start_time: float, dict_scan: dict, sec: i
 
 
 def loading_bar(sinout, start_time, sec):
-    ellapsed = int(((time() - start_time) * 100) / sec)
+    if start_time == 0:
+        ellapsed = sec
+    else:
+        ellapsed = int(((time() - start_time) * 100) / sec)
     sinout.emit(ellapsed)
     # ProgressBar.setValue(ellapsed)
     return

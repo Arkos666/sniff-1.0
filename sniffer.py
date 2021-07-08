@@ -1,21 +1,21 @@
 #! /usr/bin/env python3
+import pathlib
 import sys
 import csv
 from tkinter import Tk, Canvas, mainloop
 
-from PyQt5.QtWidgets import QDialog, QApplication, QTableWidget
+from PyQt5.QtWidgets import QDialog, QApplication, QTableWidget, QFileDialog
 from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem
 
 from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 
 from main_window import Ui_Dialog
 from time import sleep
-from scapy_mod import scan_network, send_packet
+from scapy_mod import scan_network, send_packet, ping_scan
 import constants
 
 import regex as re
-
-from PyQt5.QtCore import *
 
 g_dict_result = {}
 
@@ -28,6 +28,7 @@ class ExportWorker(QThread):
     def __init__(self, myvar, parent=None):
         super(ExportWorker, self).__init__(parent)
         self.myvar = myvar[0]
+        self.file = ""
 
     def __del__(self):
         self.wait()
@@ -35,7 +36,7 @@ class ExportWorker(QThread):
     def run(self):
         a = False
         try:
-            file_name = "scan_export.csv"
+            file_name = self.file
 
             table = QTableWidget()
             if not a:
@@ -93,6 +94,37 @@ class Worker(QThread):
             self.sinout.emit(100)
 
 
+# worker for sniffing
+class WorkerPing(QThread):
+    # signal to fill progressbar
+    sinout = pyqtSignal(int)
+
+    def __init__(self, myvar, parent=None):
+        super(WorkerPing, self).__init__(parent)
+        self.myvar = myvar[0]
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+
+        # we fill g_dict_result inside scan_network
+        # it also controls progressbass filling through sinout signal
+        global g_dict_result
+        g_dict_result = {}
+        ip1 = self.myvar.ui.txt_From.toPlainText()
+        ip2 = self.myvar.ui.txt_Dest.toPlainText()
+        g_dict_result = ping_scan(self.sinout, ip1, ip2)
+
+        # we manual fill the rest of progressbar
+        for x in range(self.myvar.ui.progressBar.value(), 100):
+            sleep(0.01)
+            self.sinout.emit(x)
+
+        if not (self.myvar.ui.progressBar.value() == 100):
+            self.sinout.emit(100)
+
+
 def create_windows():
     master = Tk()
     canvas = Canvas(master, width=40, height=60)
@@ -124,31 +156,33 @@ class AppWindow(QDialog):
 
         # if val_bar is 100% we populate de table with g_dict_result values
         if val_bar == 100:
-            global g_dict_result
-
-            row = 0
-            table_widget = self.ui.lst_Result
-            table_widget.setRowCount(len(g_dict_result))
-            table_widget.setColumnCount(4)
-            table_widget.setHorizontalHeaderLabels([constants.mac(), constants.ip(), constants.vendor(),
-                                                    constants.name()])
-            for mac in g_dict_result:
-                table_widget.setItem(row, 0, QTableWidgetItem(mac))
-                table_widget.setItem(row, 1, QTableWidgetItem(g_dict_result[mac][constants.ip()]))
-                table_widget.setItem(row, 2, QTableWidgetItem(g_dict_result[mac][constants.vendor()]))
-                table_widget.setItem(row, 3, QTableWidgetItem(g_dict_result[mac][constants.name()]))
-                row += 1
-
-            self.ui.lst_Result.resizeColumnsToContents()
-            self.ui.btn_OK.setEnabled(True)
-            self.ui.btn_Cancel.setEnabled(True)
-            if g_dict_result == {}:
-                self.ui.btn_Export.setEnabled(False)
-            else:
-                g_dict_result = {}
-                self.ui.btn_Export.setEnabled(True)
-
+            self.create_table()
             self.thread.__del__()
+
+    def create_table(self):
+        global g_dict_result
+
+        row = 0
+        table_widget = self.ui.lst_Result
+        table_widget.setRowCount(len(g_dict_result))
+        table_widget.setColumnCount(4)
+        table_widget.setHorizontalHeaderLabels([constants.mac(), constants.ip(), constants.vendor(),
+                                                constants.name()])
+        for mac in g_dict_result:
+            table_widget.setItem(row, 0, QTableWidgetItem(mac))
+            table_widget.setItem(row, 1, QTableWidgetItem(g_dict_result[mac][constants.ip()]))
+            table_widget.setItem(row, 2, QTableWidgetItem(g_dict_result[mac][constants.vendor()]))
+            table_widget.setItem(row, 3, QTableWidgetItem(g_dict_result[mac][constants.name()]))
+            row += 1
+
+        self.ui.lst_Result.resizeColumnsToContents()
+        self.ui.btn_OK.setEnabled(True)
+        self.ui.btn_Cancel.setEnabled(True)
+        if g_dict_result == {}:
+            self.ui.btn_Export.setEnabled(False)
+        else:
+            g_dict_result = {}
+            self.ui.btn_Export.setEnabled(True)
 
     def __init__(self):
         super().__init__()
@@ -164,6 +198,7 @@ class AppWindow(QDialog):
 
         o_worker = Worker(myvar=[self])
         self.thread = o_worker
+        o_worker_ping = WorkerPing(myvar=[self])
 
         def on_cancel_clicked():
             if self.thread.isRunning():
@@ -174,6 +209,7 @@ class AppWindow(QDialog):
 
         self.ui.btn_Cancel.clicked.connect(lambda: on_cancel_clicked())
         self.thread.sinout.connect(self.slot_progress)
+        o_worker_ping.sinout.connect(self.slot_progress)
 
         def on_button_clicked():
             if check_option() == self.ui.chk_Sniff:
@@ -186,7 +222,6 @@ class AppWindow(QDialog):
                     self.thread.start()
 
             elif check_option() == self.ui.chk_Ping:
-                # buttonReply = QMessageBox.information(self, "Ping", "Ping", QMessageBox.Close)
                 pattern = r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-4])\.){3}([1-9]|[1-9][0-9]|1[0-9]" \
                           r"{2}|2[0-4][0-9]|25[0-4])$"
 
@@ -201,11 +236,7 @@ class AppWindow(QDialog):
                     QMessageBox.information(self, "Wrong IP", "Second IP has not the right format",
                                             QMessageBox.Close)
                 else:
-                    dict_result = {}
-
-                    for mac in dict_result:
-                        line = dict_result[mac][constants.ip()] + ":" + dict_result[mac][constants.vendor()]
-                        self.ui.lst_Result.addItem(line)
+                    o_worker_ping.start()
 
         self.ui.btn_OK.clicked.connect(on_button_clicked)
 
@@ -214,7 +245,17 @@ class AppWindow(QDialog):
         worker_export.sinout_OK.connect(self.slot_export_ok)
 
         def on_btn_export_clicked():
-            worker_export.start()
+            title = "Save CSV"
+            directory = str(pathlib.Path(__file__).parent.resolve())
+            filter_ = "CSV Files (*.csv)"
+            file_tuple = QFileDialog.getSaveFileName(self, title, '', filter_ )
+            filename = file_tuple[0]
+
+            if filename == "":
+                return
+            else:
+                worker_export.file = filename
+                worker_export.start()
 
         self.ui.btn_Export.clicked.connect(on_btn_export_clicked)
 
