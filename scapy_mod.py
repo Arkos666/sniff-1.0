@@ -15,9 +15,8 @@ from scapy.layers.l2 import getmacbyip, Ether
 from scapy.sendrecv import sendp
 
 # libraries used for ping part
-from ping3 import ping, verbose_ping
+from ping3 import ping
 import socket
-import regex as re
 
 '''
 ## SCANNING NETWORK ##
@@ -38,7 +37,7 @@ def ping_scan(sinout, ip_init, ip_dest):
     ip_dest = ip_dest.split(".", 3)
     print(ip_init[3])
     print(ip_dest[3])
-    dict_scan={}
+    dict_scan = {}
     space_for_bar = (int(ip_dest[3]) - int(ip_init[3]))
 
     for i in range(int(ip_init[3]), int(ip_dest[3])):
@@ -47,7 +46,7 @@ def ping_scan(sinout, ip_init, ip_dest):
         print(f"{ip} : {ping_ok}")
         if isinstance(ping_ok, float):
             dict_scan[getmacbyip(ip).replace(":", "").upper()] = ip
-        loading_bar(sinout, 0, i * space_for_bar )
+        loading_bar(sinout, 0, i * space_for_bar)
         if filter_stopped:
             break
 
