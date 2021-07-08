@@ -4,21 +4,25 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f4f0abce-13b7-4ff5-b081-0516dc3e1a2a" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/bullet100.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bullet256.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bullet50.png" afterDir="false" />
+    <list default="true" id="f4f0abce-13b7-4ff5-b081-0516dc3e1a2a" name="Default Changelist" comment="Improve best practices&#10;Solve problems with threads and freeze when you scan a second time&#10;create button to export to csv&#10;fixed cancel button (after cancel you wasn't able to scan again)&#10;icon on top left of window&#10;clean table when you re-scan">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/constants.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_window.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main_window.ui" beforeDir="false" afterPath="$PROJECT_DIR$/main_window.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scapy_mod.py" beforeDir="false" afterPath="$PROJECT_DIR$/scapy_mod.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sniffer.py" beforeDir="false" afterPath="$PROJECT_DIR$/sniffer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -52,6 +56,14 @@
       <option name="presentableId" value="Default" />
       <updated>1625511149245</updated>
     </task>
+    <task id="LOCAL-00001" summary="Improve best practices&#10;Solve problems with threads and freeze when you scan a second time&#10;create button to export to csv&#10;fixed cancel button (after cancel you wasn't able to scan again)&#10;icon on top left of window&#10;clean table when you re-scan">
+      <created>1625645253000</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1625645253000</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -65,5 +77,9 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Improve best practices&#10;Solve problems with threads and freeze when you scan a second time&#10;create button to export to csv&#10;fixed cancel button (after cancel you wasn't able to scan again)&#10;icon on top left of window&#10;clean table when you re-scan" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improve best practices&#10;Solve problems with threads and freeze when you scan a second time&#10;create button to export to csv&#10;fixed cancel button (after cancel you wasn't able to scan again)&#10;icon on top left of window&#10;clean table when you re-scan" />
   </component>
 </project>
